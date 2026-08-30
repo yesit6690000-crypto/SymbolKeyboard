@@ -9,13 +9,13 @@ object SymbolCipher {
 
     // letter -> symbol (what gets typed into the text field)
     val letterToSymbol: Map<Char, String> = mapOf(
-        'a' to "@", 'b' to "ß", 'c' to "¢", 'd' to "Đ", 'e' to "3",
-        'f' to "ƒ", 'g' to "9", 'h' to "#", 'i' to "!", 'j' to "j",
-        'k' to "k", 'l' to "ł", 'm' to "m", 'n' to "n", 'o' to "Ø",
-        'p' to "¶", 'q' to "q", 'r' to "®", 's' to "§", 't' to "7",
-        'u' to "Ü", 'v' to "v", 'w' to "w", 'x' to "×", 'y' to "¥",
-        'z' to "2"
-    )
+    'a' to "ζ", 'b' to "η", 'c' to "θ", 'd' to "ι", 'e' to "κ",
+    'f' to "λ", 'g' to "μ", 'h' to "ν", 'i' to "ξ", 'j' to "ο",
+    'k' to "π", 'l' to "ρ", 'm' to "σ", 'n' to "τ", 'o' to "υ",
+    'p' to "φ", 'q' to "χ", 'r' to "ψ", 's' to "ω", 't' to "α",
+    'u' to "β", 'v' to "γ", 'w' to "δ", 'x' to "ε", 'y' to "Ж",
+    'z' to "Ѳ"
+)
 
     // reverse map, built automatically: symbol -> letter
     val symbolToLetter: Map<String, Char> =
