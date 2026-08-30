@@ -39,9 +39,15 @@ class SetupActivity : AppCompatActivity() {
                 imm.showInputMethodPicker()
             }
         }
-
+val decryptBtn = Button(this).apply {
+            text = "Decrypt a message"
+            setOnClickListener {
+                startActivity(Intent(this@SetupActivity, DecryptActivity::class.java))
+            }
+        }
         layout.addView(enableBtn)
         layout.addView(switchBtn)
+        layout.addView(decryptBtn)
         setContentView(layout)
     }
 }
