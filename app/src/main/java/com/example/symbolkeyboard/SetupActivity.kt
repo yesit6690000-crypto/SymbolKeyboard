@@ -45,9 +45,24 @@ val decryptBtn = Button(this).apply {
                 startActivity(Intent(this@SetupActivity, DecryptActivity::class.java))
             }
         }
+        val bubbleBtn = Button(this).apply {
+    text = "Enable live decode bubble"
+    setOnClickListener {
+        if (!Settings.canDrawOverlays(this@SetupActivity)) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            )
+            startActivity(intent)
+        } else {
+            startService(Intent(this@SetupActivity, FloatingDecodeService::class.java))
+        }
+    }
+
         layout.addView(enableBtn)
         layout.addView(switchBtn)
         layout.addView(decryptBtn)
+        layout.addView(bubbleBtn)
         setContentView(layout)
     }
 }
