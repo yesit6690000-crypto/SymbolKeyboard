@@ -31,5 +31,10 @@
                 android:name="android.view.im"
                 android:resource="@xml/method" />
         </service>
+    <activity
+    android:name=".DecryptActivity"
+    android:label="Decrypt"
+    android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+    android:exported="false" />
     </application>
 </manifest>
