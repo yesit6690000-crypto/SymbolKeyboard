@@ -59,7 +59,7 @@ val decryptBtn = Button(this).apply {
             startService(Intent(this@SetupActivity, FloatingDecodeService::class.java))
         }
     }
-
+}
         layout.addView(enableBtn)
         layout.addView(switchBtn)
         layout.addView(decryptBtn)
