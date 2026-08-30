@@ -30,7 +30,6 @@ object SymbolCipher {
     private val symbolToSpecial: Map<String, Char> =
         specialToSymbol.entries.associate { (k, v) -> v to k }
 
-    /** Encodes one input char (letter/digit/punct) into its display symbol. */
     fun encodeChar(c: Char): String {
         val lower = c.lowercaseChar()
         return when {
@@ -40,13 +39,12 @@ object SymbolCipher {
             }
             digitToSymbol.containsKey(c) -> digitToSymbol.getValue(c)
             specialToSymbol.containsKey(c) -> specialToSymbol.getValue(c)
-            else -> c.toString() // space, newline, anything unmapped passes through
+            else -> c.toString()
         }
     }
 
     fun encode(text: String): String = text.map { encodeChar(it) }.joinToString("")
 
-    /** Decodes a symbol string back into plain English. */
     fun decode(text: String): String {
         val sb = StringBuilder()
         for (c in text) {
