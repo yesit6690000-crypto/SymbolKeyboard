@@ -1,9 +1,13 @@
 package com.example.symbolkeyboard
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.inputmethodservice.InputMethodService
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.ImageButton
@@ -64,6 +68,18 @@ class SymbolIME : InputMethodService() {
             textSize = 15f
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
+        val decryptBtn = TextView(this).apply {
+            text = "🔓"
+            textSize = 18f
+            setPadding(dp(6), 0, dp(10), 0)
+            isClickable = true
+            isFocusable = true
+            setOnClickListener {
+                val intent = Intent(this@SymbolIME, DecryptActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            }
+        }
         val eye = ImageButton(this).apply {
             setImageResource(android.R.drawable.ic_menu_view)
             background = null
@@ -71,6 +87,7 @@ class SymbolIME : InputMethodService() {
             setOnClickListener { isDecodeHidden = !isDecodeHidden; refreshDecodeStrip() }
         }
         strip.addView(decodeStrip)
+        strip.addView(decryptBtn)
         strip.addView(eye)
         return strip
     }
@@ -105,7 +122,7 @@ class SymbolIME : InputMethodService() {
             if (index == 2) rowLayout.addView(backspaceKey(), keyParams(1.4f))
             keyboardContainer.addView(rowLayout)
         }
-        keyboardContainer.addView(bottomRow(showLettersToggle = true))
+        keyboardContainer.addView(bottomRow())
     }
 
     private fun buildNumberLayer() {
@@ -123,10 +140,10 @@ class SymbolIME : InputMethodService() {
         row3.addView(backspaceKey(), keyParams(1.4f))
         keyboardContainer.addView(row3)
 
-        keyboardContainer.addView(bottomRow(showLettersToggle = false))
+        keyboardContainer.addView(bottomRow())
     }
 
-    private fun buildSymbolLayer() = buildNumberLayer() // same set for now, room to expand later
+    private fun buildSymbolLayer() = buildNumberLayer()
 
     // ---------- Key builders ----------
 
@@ -185,9 +202,34 @@ class SymbolIME : InputMethodService() {
 
     private fun backspaceKey(): View {
         val key = simpleKey("⌫")
-        key.setOnClickListener {
+        val handler = Handler(Looper.getMainLooper())
+        var repeatRunnable: Runnable? = null
+
+        fun deleteOnce() {
             currentInputConnection?.deleteSurroundingText(1, 0)
             refreshDecodeStrip()
+        }
+
+        key.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    deleteOnce()
+                    val runnable = object : Runnable {
+                        override fun run() {
+                            deleteOnce()
+                            handler.postDelayed(this, 50)
+                        }
+                    }
+                    repeatRunnable = runnable
+                    handler.postDelayed(runnable, 400)
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    repeatRunnable?.let { handler.removeCallbacks(it) }
+                    true
+                }
+                else -> false
+            }
         }
         return key
     }
@@ -201,7 +243,7 @@ class SymbolIME : InputMethodService() {
         return key
     }
 
-    private fun bottomRow(showLettersToggle: Boolean): LinearLayout {
+    private fun bottomRow(): LinearLayout {
         val row = rowContainer()
         val toggleLabel = if (layer == Layer.LETTERS) "?123" else "ABC"
         val toggle = simpleKey(toggleLabel)
