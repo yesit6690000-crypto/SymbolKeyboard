@@ -3,6 +3,7 @@ package com.example.symbolkeyboard
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.net.Uri
 import android.view.Gravity
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
