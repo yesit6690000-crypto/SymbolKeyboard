@@ -98,14 +98,14 @@ class SymbolIME : InputMethodService() {
 
     /** Pulls recent text before the cursor and shows it decoded back to English. */
     private fun refreshDecodeStrip() {
-        val before = currentInputConnection?.getTextBeforeCursor(200, 0)?.toString() ?: ""
-        decodeStrip.text = if (before.isEmpty()) {
-            "Type to see decoded text…"
-        } else {
-            SymbolCipher.decode(before)
-        }
+    if (!::decodeStrip.isInitialized) return
+    val before = currentInputConnection?.getTextBeforeCursor(200, 0)?.toString() ?: ""
+    decodeStrip.text = if (before.isEmpty()) {
+        "Type to see decoded text…"
+    } else {
+        SymbolCipher.decode(before)
     }
-
+}
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         refreshDecodeStrip()
