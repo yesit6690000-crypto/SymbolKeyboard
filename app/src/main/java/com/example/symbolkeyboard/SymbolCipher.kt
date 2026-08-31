@@ -1,7 +1,13 @@
 package com.example.symbolkeyboard
 
+/**
+ * Central place that defines your "code language".
+ * Change the symbols on the right to invent your own cipher —
+ * everything else in the app (keys + decode strip) reads from this map.
+ */
 object SymbolCipher {
 
+    // letter -> symbol (what gets typed into the text field)
     val letterToSymbol: Map<Char, String> = mapOf(
         'a' to "ζ", 'b' to "η", 'c' to "θ", 'd' to "ι", 'e' to "κ",
         'f' to "λ", 'g' to "μ", 'h' to "ν", 'i' to "ξ", 'j' to "ο",
@@ -11,53 +17,43 @@ object SymbolCipher {
         'z' to "Ѳ"
     )
 
-    val digitToSymbol: Map<Char, String> = mapOf(
-        '0' to "⓪", '1' to "①", '2' to "②", '3' to "③", '4' to "④",
-        '5' to "⑤", '6' to "⑥", '7' to "⑦", '8' to "⑧", '9' to "⑨"
+    // reverse map, built automatically: symbol -> letter
+    val symbolToLetter: Map<String, Char> =
+        letterToSymbol.entries.associate { (letter, symbol) -> symbol to letter }
+
+    val rows: List<String> = listOf(
+        "qwertyuiop",
+        "asdfghjkl",
+        "zxcvbnm"
     )
 
-    val specialToSymbol: Map<Char, String> = mapOf(
-        '.' to "⁘", ',' to "⁏", '!' to "‼", '?' to "⁇", '-' to "—",
-        '\'' to "ʹ", '"' to "″", ':' to "⁚", ';' to "⁝",
-        '(' to "﹙", ')' to "﹚", '/' to "⁄", '@' to "﹫", '_' to "‗",
-        '#' to "﹟", '&' to "﹠", '+' to "﹢", '~' to "〜", '*' to "⁎"
-    )
+    fun symbolFor(letter: Char): String =
+        letterToSymbol[letter.lowercaseChar()] ?: letter.toString()
 
-    private val symbolToLetter: Map<String, Char> =
-        letterToSymbol.entries.associate { (k, v) -> v to k }
-    private val symbolToDigit: Map<String, Char> =
-        digitToSymbol.entries.associate { (k, v) -> v to k }
-    private val symbolToSpecial: Map<String, Char> =
-        specialToSymbol.entries.associate { (k, v) -> v to k }
-
-    fun encodeChar(c: Char): String {
-        val lower = c.lowercaseChar()
-        return when {
-            letterToSymbol.containsKey(lower) -> {
-                val sym = letterToSymbol.getValue(lower)
-                if (c.isUpperCase()) sym.uppercase() else sym
-            }
-            digitToSymbol.containsKey(c) -> digitToSymbol.getValue(c)
-            specialToSymbol.containsKey(c) -> specialToSymbol.getValue(c)
-            else -> c.toString()
-        }
-    }
-
-    fun encode(text: String): String = text.map { encodeChar(it) }.joinToString("")
-
-    fun decode(text: String): String {
+    /**
+     * Decode a string of committed symbols back into plain English.
+     * Anything not in the map (spaces, punctuation, digits) passes through unchanged.
+     */
+    fun decode(text: CharSequence): String {
         val sb = StringBuilder()
-        for (c in text) {
-            val cStr = c.toString()
-            val lower = cStr.lowercase()
-            when {
-                symbolToLetter.containsKey(lower) -> {
-                    val letter = symbolToLetter.getValue(lower)
-                    sb.append(if (cStr != lower) letter.uppercaseChar() else letter)
+        var i = 0
+        while (i < text.length) {
+            var matched = false
+            for (len in 2 downTo 1) {
+                if (i + len <= text.length) {
+                    val chunk = text.substring(i, i + len)
+                    val letter = symbolToLetter[chunk]
+                    if (letter != null) {
+                        sb.append(letter)
+                        i += len
+                        matched = true
+                        break
+                    }
                 }
-                symbolToDigit.containsKey(cStr) -> sb.append(symbolToDigit.getValue(cStr))
-                symbolToSpecial.containsKey(cStr) -> sb.append(symbolToSpecial.getValue(cStr))
-                else -> sb.append(c)
+            }
+            if (!matched) {
+                sb.append(text[i])
+                i++
             }
         }
         return sb.toString()
